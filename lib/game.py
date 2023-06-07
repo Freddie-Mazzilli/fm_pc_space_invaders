@@ -97,14 +97,14 @@ class Game:
         screen.blit(loss_surf, loss_rect)
 
     def start_menu(self):
-        start_surf = self.font.render("START GAME? (press space)", False, "white")
+        start_surf = self.font.render("START GAME? (press Y)", False, "white")
         start_rect = start_surf.get_rect(center = (screen_width / 2, screen_height / 2))
         screen.blit(start_surf, start_rect)
         
     def get_input(self):
         keys = pygame.key.get_pressed()
 
-        if keys[pygame.K_SPACE]:
+        if keys[pygame.K_y]:
             self.start_game = True
 
     def run(self):
@@ -133,6 +133,7 @@ if __name__ == '__main__':
     pygame.init()
     screen_width = 600
     screen_height = 600
+    background = pygame.image.load('./lib/assets/background.png')
     screen = pygame.display.set_mode((screen_width, screen_height))
     clock = pygame.time.Clock()
     game = Game()
@@ -147,8 +148,9 @@ if __name__ == '__main__':
                 sys.exit()
             if event.type == ALIENBULLET:
                 game.alien_shoot()
-        
-        screen.fill((30,30,30))
+                
+        screen.blit(background, (0, 0))
+        # screen.fill((30,30,30))
 
         game.run()
 
