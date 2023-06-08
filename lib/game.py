@@ -17,6 +17,7 @@ class Game:
         self.start_game = False
         self.game_over = False
         self.column = 9
+        self.wave = 1
 
         self.lives = 3
         self.live_surf = pygame.image.load("./lib/assets/lives.png")
@@ -45,6 +46,7 @@ class Game:
     def alien_position_checker(self):
         if not self.aliens:
             self.alien_setup(rows=6, cols=self.column)
+            self.wave += 1
             if self.column <= 11:
                 self.column += 1
         all_aliens = self.aliens.sprites()
@@ -99,8 +101,13 @@ class Game:
             x = self.live_x_start_pos + (live * (self.live_surf.get_size()[0] + 10))
             screen.blit(self.live_surf, (x, 8))
 
+    def display_wave(self):
+        wave_surf = self.font.render(f'Wave: {self.wave}', False, 'white')
+        wave_rect = wave_surf.get_rect(topleft = (0, 25))
+        screen.blit(wave_surf, wave_rect)
+
     def display_score(self):
-        score_surf = self.font.render(f'score: {self.score}', False, 'white')
+        score_surf = self.font.render(f'Score: {self.score}', False, 'white')
         score_rect = score_surf.get_rect(topleft = (0, 0))
         screen.blit(score_surf, score_rect)
 
@@ -195,6 +202,7 @@ class Game:
             self.alien_bullets.draw(screen)
             self.display_lives()
             self.display_score()
+            self.display_wave()
 
         if self.game_over:
             self.end_message()
