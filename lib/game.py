@@ -1,4 +1,5 @@
 import pygame, sys
+import sqlite3
 from random import choice
 from player import Player
 from alien import Alien
@@ -7,9 +8,8 @@ from bullet import Bullet
 
 class Game:
 
-
-
     def __init__(self):
+        self.player_name = " "
         player_sprite = Player((screen_width / 2, screen_height), screen_width, 5 )
         self.player = pygame.sprite.GroupSingle(player_sprite)
 
@@ -27,7 +27,7 @@ class Game:
         self.alien_setup(rows = 6, cols = 8)
         self.alien_direction = 1
 
-    def alien_setup(self, rows, cols, x_distance = 60, y_distance = 48, x_offset = 70, y_offset = 100):
+    def alien_setup(self, rows, cols, x_distance = 60, y_distance = 48, x_offset = 70, y_offset = 20):
         for row_index, row in enumerate(range(rows)):
             for col_index, col in enumerate(range(cols)):
                 x = col_index * x_distance + x_offset
@@ -93,24 +93,68 @@ class Game:
 
     def end_message(self):
         loss_surf = self.font.render("GAME OVER", False, "white")
-        loss_rect = loss_surf.get_rect(center = (screen_width / 2, screen_height / 2))
+        loss_rect = loss_surf.get_rect(center = (screen_width / 2, screen_height / 2 - 150))
         screen.blit(loss_surf, loss_rect)
 
+        self.display_scores()
+
+    def display_scores(self):
+        conn = sqlite3.connect("game_scores.db")
+        c = conn.cursor()
+
+        c.execute("SELECT player_name, score FROM scores ORDER BY score DESC LIMIT 5")
+        top_scores = c.fetchall()
+
+        score_prefix = "TOP SCORES:"
+        offset = -50
+        prefix_surf = self.font.render(score_prefix, False, 'white')
+        prefix_rect = prefix_surf.get_rect(center=(screen_width / 2, screen_height / 2 - 50))
+        screen.blit(prefix_surf, prefix_rect)
+        for i, score in enumerate(top_scores):
+            name, value = score
+            score_text = f"{i+1}. {name}: {value}"
+            offset += 50
+
+            score_surf = self.font.render(score_text, False, "white")
+            score_rect = score_surf.get_rect(center=(screen_width / 2, screen_height / 2 + offset))
+            screen.blit(score_surf, score_rect)
+
+        conn.close()
+    
     def start_menu(self):
-        start_surf = self.font.render("START GAME? (press Y)", False, "white")
+        start_surf = self.font.render("START GAME? (press space)", False, "white")
         start_rect = start_surf.get_rect(center = (screen_width / 2, screen_height / 2))
         screen.blit(start_surf, start_rect)
         
     def get_input(self):
         keys = pygame.key.get_pressed()
 
-        if keys[pygame.K_y]:
+        if keys[pygame.K_SPACE]:
             self.start_game = True
+            self.player_name = input("Enter Name:")
+
+    def save_score_to_database(self):
+        conn = sqlite3.connect("game_scores.db")
+        c = conn.cursor()
+
+        c.execute("CREATE TABLE IF NOT EXISTS scores (player_name text, score integer)")
+        c.execute("SELECT * FROM scores WHERE player_name = ?", (self.player_name,))
+        existing_entry = c.fetchone()
+
+        if existing_entry:
+            if self.score > existing_entry[1]:
+                c.execute("UPDATE scores SET score = ? WHERE player_name = ?", (self.score, self.player_name))
+        else:
+            c.execute("INSERT INTO scores (player_name, score) VALUES (?, ?)", (self.player_name, self.score))
+
+        conn.commit()
+        conn.close()
 
     def run(self):
         if not self.start_game:
             self.start_menu()
             self.get_input()
+
         if self.start_game and not self.game_over:
             self.player.update()
             self.aliens.update(self.alien_direction)
@@ -128,29 +172,30 @@ class Game:
 
         if self.game_over:
             self.end_message()
+            self.save_score_to_database()
 
 if __name__ == '__main__':
     pygame.init()
-    screen_width = 600
+    screen_width = 800
     screen_height = 600
     background = pygame.image.load('./lib/assets/background.png')
     screen = pygame.display.set_mode((screen_width, screen_height))
     clock = pygame.time.Clock()
     game = Game()
 
-    ALIENBULLET = pygame.USEREVENT + 1
-    pygame.time.set_timer(ALIENBULLET, 800)
 
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            if event.type == ALIENBULLET:
-                game.alien_shoot()
-                
-        screen.blit(background, (0, 0))
-        # screen.fill((30,30,30))
+            if game.start_game:
+                ALIENBULLET = pygame.USEREVENT + 1
+                pygame.time.set_timer(ALIENBULLET, 500)
+                if event.type == ALIENBULLET:
+                    game.alien_shoot()
+        
+        screen.blit(background, (0,0))
 
         game.run()
 
