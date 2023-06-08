@@ -13,6 +13,7 @@ class Game:
         player_sprite = Player((screen_width / 2, screen_height), screen_width, 5 )
         self.player = pygame.sprite.GroupSingle(player_sprite)
 
+        self.first_menu = False
         self.start_game = False
         self.game_over = False
         self.column = 9
@@ -44,7 +45,8 @@ class Game:
     def alien_position_checker(self):
         if not self.aliens:
             self.alien_setup(rows=6, cols=self.column)
-            self.column += 1
+            if self.column <= 11:
+                self.column += 1
         all_aliens = self.aliens.sprites()
         for alien in all_aliens:
             if alien.rect.right >= screen_width:
@@ -128,17 +130,28 @@ class Game:
 
         conn.close()
     
+    def first_menu_method(self):
+        menu_surf = self.font.render("PRESS SPACE TO INPUT NAME", False, 'white')
+        menu_rect = menu_surf.get_rect(center = (screen_width / 2, screen_height / 2))
+        screen.blit(menu_surf, menu_rect)
+
+    def first_menu_input(self):
+        keys = pygame.key.get_pressed()
+
+        if keys[pygame.K_SPACE]:
+            self.first_menu = True
+            self.player_name = input("Enter Name:")
+
     def start_menu(self):
-        start_surf = self.font.render("START GAME? (press space)", False, "white")
+        start_surf = self.font.render(f"HELLO {self.player_name}, PRESS Y TO START", False, "white")
         start_rect = start_surf.get_rect(center = (screen_width / 2, screen_height / 2))
         screen.blit(start_surf, start_rect)
         
     def get_input(self):
         keys = pygame.key.get_pressed()
 
-        if keys[pygame.K_SPACE]:
+        if keys[pygame.K_y]:
             self.start_game = True
-            self.player_name = input("Enter Name:")
 
     def save_score_to_database(self):
         conn = sqlite3.connect("game_scores.db")
@@ -158,7 +171,10 @@ class Game:
         conn.close()
 
     def run(self):
-        if not self.start_game:
+        if not self.first_menu and not self.start_game:
+            self.first_menu_method()
+            self.first_menu_input()
+        if self.first_menu and not self.start_game:
             self.start_menu()
             self.get_input()
 
