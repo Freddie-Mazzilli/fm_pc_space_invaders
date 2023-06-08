@@ -62,9 +62,13 @@ class Game:
                 alien.rect.y += distance
 
     def alien_shoot(self):
-        if self.aliens.sprites():
+        if self.aliens.sprites() and self.column <= 11:
             random_alien = choice(self.aliens.sprites())
             bullet_sprite = Bullet(random_alien.rect.center, 6, screen_height)
+            self.alien_bullets.add(bullet_sprite)
+        elif self.aliens.sprites() and self.column == 12:
+            random_alien = choice(self.aliens.sprites())
+            bullet_sprite = Bullet(random_alien.rect.center, 10, screen_height)
             self.alien_bullets.add(bullet_sprite)
 
     def collision_checks(self):
