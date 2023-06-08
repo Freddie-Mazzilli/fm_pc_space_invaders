@@ -131,7 +131,7 @@ class Game:
         conn.close()
     
     def first_menu_method(self):
-        menu_surf = self.font.render("PRESS SPACE TO INPUT NAME", False, 'white')
+        menu_surf = self.font.render("PRESS SPACE AND INPUT NAME", False, 'white')
         menu_rect = menu_surf.get_rect(center = (screen_width / 2, screen_height / 2))
         screen.blit(menu_surf, menu_rect)
 
@@ -143,14 +143,13 @@ class Game:
             self.player_name = input("Enter Name:")
 
     def start_menu(self):
-        start_surf = self.font.render(f"HELLO {self.player_name}, PRESS Y TO START", False, "white")
+        start_surf = self.font.render(f"HELLO {self.player_name}, CLICK TO START", False, "white")
         start_rect = start_surf.get_rect(center = (screen_width / 2, screen_height / 2))
         screen.blit(start_surf, start_rect)
         
     def get_input(self):
-        keys = pygame.key.get_pressed()
 
-        if keys[pygame.K_y]:
+        if pygame.mouse.get_pressed(num_buttons=3)[0]:
             self.start_game = True
 
     def save_score_to_database(self):
