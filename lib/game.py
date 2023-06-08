@@ -18,7 +18,7 @@ class Game:
         self.column = 9
 
         self.lives = 3
-        self.live_surf = pygame.image.load("./lib/assets/player.png")
+        self.live_surf = pygame.image.load("./lib/assets/lives.png")
         self.live_x_start_pos = screen_width - (self.live_surf.get_size()[0] * 2 + 20)
         self.score = 0
         self.font = pygame.font.Font("./lib/assets/space_invaders.ttf", 20)
@@ -33,7 +33,12 @@ class Game:
             for col_index, col in enumerate(range(cols)):
                 x = col_index * x_distance + x_offset
                 y = row_index * y_distance + y_offset
-                alien_sprite = Alien(x, y)
+                if row_index == 0:
+                    alien_sprite = Alien('best_alien', x, y)
+                elif 1 <= row_index <=2:
+                    alien_sprite = Alien('upgraded_alien', x, y)
+                else:
+                    alien_sprite = Alien('basic_alien', x, y)
                 self.aliens.add(alien_sprite)
 
     def alien_position_checker(self):
