@@ -16,7 +16,7 @@ Basic Commands:
 
     - to move your player use the <left> and <right> arrows
 
-    - to shoot your lasers and destroy aliens use your <space-bar> key
+    - to shoot your lasers and destroy aliens HOLD DOWN your <space-bar> key
 
 On the screen you will see a multitude of aliens which will be one of three colors: red, blue, and green. You will gain points by destroying aliens with your laser shots. These aliens all have different score values associated with them:
 

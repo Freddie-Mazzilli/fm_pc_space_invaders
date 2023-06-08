@@ -23,10 +23,11 @@ class Player(pygame.sprite.Sprite):
         elif keys[pygame.K_LEFT]:
             self.rect.x -= self.speed
 
-        if keys[pygame.K_SPACE] and self.ready:
+        if self.ready and keys[pygame.K_SPACE]:
             self.shoot()
             self.ready = False
             self.shoot_time = pygame.time.get_ticks()
+            
 
     def recharge(self):
         if not self.ready:
