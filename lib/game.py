@@ -15,9 +15,10 @@ class Game:
 
         self.start_game = False
         self.game_over = False
+        self.column = 9
 
         self.lives = 3
-        self.live_surf = pygame.image.load("./lib/assets/icon_1.png").convert_alpha()
+        self.live_surf = pygame.image.load("./lib/assets/player.png")
         self.live_x_start_pos = screen_width - (self.live_surf.get_size()[0] * 2 + 20)
         self.score = 0
         self.font = pygame.font.Font("./lib/assets/space_invaders.ttf", 20)
@@ -37,7 +38,8 @@ class Game:
 
     def alien_position_checker(self):
         if not self.aliens:
-            self.alien_setup(rows=6, cols=8)
+            self.alien_setup(rows=6, cols=self.column)
+            self.column += 1
         all_aliens = self.aliens.sprites()
         for alien in all_aliens:
             if alien.rect.right >= screen_width:
